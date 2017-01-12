@@ -1,0 +1,12 @@
+# WiRocStartup service, fix bluetooth
+[Unit]
+Description=WiRocStartup: Startup service
+After=default.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/chip/WiRoc-StartupScripts/Startup.sh
+
+[Install]
+WantedBy=WiRocBLE.service
+WantedBy=WiRocPython.service

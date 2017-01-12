@@ -1,0 +1,11 @@
+# WiRocPython service
+[Unit]
+Description=WiRocBLE: Bluetooth Low Energy GATT service
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=node /home/chip/WiRoc-BLE-Device/main.js &> /home/chip/WiRoc-BLE-Device.log
+
+[Install]
+WantedBy=default.target
