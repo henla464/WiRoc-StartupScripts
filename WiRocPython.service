@@ -7,6 +7,8 @@ After=default.target
 Type=simple
 WorkingDirectory=/home/chip/WiRoc-Python-2
 ExecStart=/usr/bin/python3 start.py
+Restart=always
+RestartSec=10
 
 [Install]
 WantedBy=default.target

@@ -6,6 +6,8 @@ After=default.target
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/node /home/chip/WiRoc-BLE-Device/main.js &> /home/chip/WiRoc-BLE-Device.log
+Restart=always
+RestartSec=10
 
 [Install]
 WantedBy=default.target
