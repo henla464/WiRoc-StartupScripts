@@ -1,0 +1,14 @@
+# WiRocPython service
+[Unit]
+Description=WiRocPythonWS: WiRoc service for web api
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/chip/WiRoc-Python-2
+ExecStart=/usr/bin/python3 startWebServer.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
