@@ -1,10 +1,12 @@
 # WiRocPython service
 [Unit]
 Description=WiRocPythonWS: WiRoc service for web api
-After=default.target
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
-Type=simple
+Type=forking
+PIDFile=/var/run/WiRocPythonWS.pid
 WorkingDirectory=/home/chip/WiRoc-Python-2
 ExecStart=/usr/bin/python3 startWebServer.py
 Restart=always

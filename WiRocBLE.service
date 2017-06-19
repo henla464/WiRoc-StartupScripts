@@ -1,11 +1,12 @@
 # WiRocPython service
 [Unit]
 Description=WiRocBLE: Bluetooth Low Energy GATT service
-After=default.target
+Wants=network-online.target WiRocPythonWS.service
+After=network.target network-online.target WiRocPythonWS.service
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/node /home/chip/WiRoc-BLE-Device/main.js &> /home/chip/WiRoc-BLE-Device.log
+ExecStart=BLENO_ADVERTISING_INTERVAL=1000 /usr/local/bin/node /home/chip/WiRoc-BLE-Device/main.js &> /home/chip/WiRoc-BLE-Device.log
 StandardOutput=syslog
 StandardError=syslog
 Restart=always
