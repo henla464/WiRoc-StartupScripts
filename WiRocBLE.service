@@ -12,6 +12,7 @@ StandardOutput=syslog
 StandardError=syslog
 Restart=always
 RestartSec=10
+KillMode=process
 
 [Install]
 WantedBy=default.target
