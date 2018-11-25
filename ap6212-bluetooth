@@ -88,4 +88,5 @@ case "$1" in
         echo "Usage: ap6212-bluetooth [start|stop|status]" >&2
         exit 3
         ;;
+esac
 
