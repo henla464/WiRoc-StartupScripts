@@ -1,0 +1,15 @@
+# WiRocBLEAPI service
+[Unit]
+Description=WiRocBLEAPI: Bluetooth Low Energy GATT service
+Wants=network-online.target WiRocPythonWS.service
+After=network.target network-online.target WiRocPythonWS.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/chip/WiRoc-BLE-API
+ExecStart=/usr/bin/python3 gatt-server.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
