@@ -5,8 +5,8 @@ Wants=network-online.target
 After=network.target network-online.target
 
 [Service]
-Type=forking
-PIDFile=/var/run/WiRocPythonWS.pid
+Type=simple
+#PIDFile=/var/run/WiRocPythonWS.pid
 WorkingDirectory=/home/chip/WiRoc-Python-2
 ExecStart=/usr/bin/python3 startWebServer.py
 Restart=always
