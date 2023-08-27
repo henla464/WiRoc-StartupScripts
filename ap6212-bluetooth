@@ -70,7 +70,7 @@ then
         #echo 0 > /sys/class/gpio/gpio205/value
         #echo 1 > /sys/class/gpio/gpio205/value
         sleep 0.1
-        hciattach -t 20 /dev/$PORT bcm43xx 115200 flow
+        hciattach -t 20 /dev/$PORT bcm43xx 1500000 flow bdaddr $MAC_OPTIONS
         hciconfig hci0 up﻿
 fi
 }
