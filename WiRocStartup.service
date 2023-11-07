@@ -5,7 +5,7 @@ After=default.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/chip/WiRoc-StartupScripts/Startup.sh
+ExecStart=/home/chip/WiRoc-StartupScripts/Startup.py
 
 [Install]
 WantedBy=WiRocBLE.service
