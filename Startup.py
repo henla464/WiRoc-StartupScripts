@@ -62,15 +62,15 @@ def Init() -> None:
 
     Logger.info("Start")
 
-    with open("../settings.yaml", "r") as f:
+    with open("/home/chip/settings.yaml", "r") as f:
         settings = yaml.load(f, Loader=yaml.BaseLoader)
     global WiRocHWVersion
-    WiRocHWVersion: str = settings['WiRocHWVersion']
-    WiRocHWVersion: str = WiRocHWVersion.strip()
+    WiRocHWVersion = settings['WiRocHWVersion']
+    WiRocHWVersion = WiRocHWVersion.strip()
     global WiRocHWVersionNumber
-    WiRocHWVersionNumber: int = int(WiRocHWVersion.split("Rev")[0][1:])
+    WiRocHWVersionNumber = int(WiRocHWVersion.split("Rev")[0][1:])
     global WiRocHWRevisionNumber
-    WiRocHWRevisionNumber: int = int(WiRocHWVersion.split("Rev")[1])
+    WiRocHWRevisionNumber = int(WiRocHWVersion.split("Rev")[1])
 
     global I2CBus
     I2CBus = SMBus(0)  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
@@ -128,7 +128,7 @@ def initRTCModuleAndSetSystemTime() -> None:
 
 def getBluetoothAddressSettings() -> tuple[str, bool]:
     Logger.info("getBluetoothAddressSettings() Start")
-    f = open("../settings.yaml", "r")
+    f = open("/home/chip/settings.yaml", "r")
     settings = yaml.load(f, Loader=yaml.BaseLoader)
     f.close()
 
@@ -145,13 +145,25 @@ def getBluetoothAddressSettings() -> tuple[str, bool]:
 
 def setBluetoothAddressInSettings(btAddress: str) -> None:
     Logger.info("setBluetoothAddressSettings() Start")
-    with open("../settings.yaml", "r") as f1:
+    with open("/home/chip/settings.yaml", "r") as f1:
         settings = yaml.load(f1, Loader=yaml.BaseLoader)
 
     settings["BluetoothAddress"] = btAddress
-    with open('../settings.yaml', 'w') as f2:
+    with open('/home/chip/settings.yaml', 'w') as f2:
         yaml.dump(settings, f2)  # Write a YAML representation of data to 'settings.yaml'.
     Logger.info("setBluetoothAddressSettings() End")
+    return None
+
+
+def clearWriteBluetoothAddressToAXP209() -> None:
+    Logger.info("clearWriteBluetoothAddressToAXP209() Start")
+    with open("/home/chip/settings.yaml", "r") as f1:
+        settings = yaml.load(f1, Loader=yaml.BaseLoader)
+
+    settings["WriteBluetoothAddressToAXP209"] = "False"
+    with open('/home/chip/settings.yaml', 'w') as f2:
+        yaml.dump(settings, f2)  # Write a YAML representation of data to 'settings.yaml'.
+    Logger.info("clearWriteBluetoothAddressToAXP209() End")
     return None
 
 
@@ -228,6 +240,7 @@ def getBluetoothAddressToUseAndSyncronizeSettingAndAXP209():
     btAddressSettings, writeBluetoothAddressToAXP209 = getBluetoothAddressSettings()
     if btAddressSettings is not None and writeBluetoothAddressToAXP209:
         setBluetoothAddressInAXP209(btAddressSettings)
+        clearWriteBluetoothAddressToAXP209()
         Logger.info(f"getBluetoothAddressToUseAndSyncronizeSettingAndAXP209() End:  btAddressSettings: {btAddressSettings}")
         return btAddressSettings
 

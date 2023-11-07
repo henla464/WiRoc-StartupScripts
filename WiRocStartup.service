@@ -5,6 +5,7 @@ After=default.target
 
 [Service]
 Type=oneshot
+WorkingDirectory=/home/chip/WiRoc-StartupScripts
 ExecStart=/home/chip/WiRoc-StartupScripts/Startup.py
 
 [Install]
