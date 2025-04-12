@@ -26,6 +26,8 @@ DATA_CACHE_9_REGADDR = 0x0D
 DATA_CACHE_10_REGADDR = 0x0E
 DATA_CACHE_11_REGADDR = 0x0F
 
+ADC_REGADDR = 0x82
+
 BT_ADDRESS_MAGIC_CONSTANT = 0xAA
 
 # Global variables
@@ -88,6 +90,10 @@ def disableGadgetSerialOnUSB() -> None:
     Logger.info("disableGadgetSerialOnUSB() End")
     return None
 
+def enableBatteryADC() -> None:
+    Logger.info("enableBatteryADC() Start")
+    I2CBus.write_byte_data(I2CAddressAXP209, ADC_REGADDR, 0xC3, force=True)
+    Logger.info("enableBatteryADC() End")
 
 def clearRTCAlarm() -> None:
     Logger.info("clearRTCAlarm() Start")
@@ -280,6 +286,7 @@ def configureBluetoothAddress() -> None:
 
 def main():
     Init()
+    enableBatteryADC()
     disableGadgetSerialOnUSB()
     if WiRocHWVersionNumber >= 7:
         clearRTCAlarm()

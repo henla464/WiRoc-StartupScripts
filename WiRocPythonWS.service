@@ -8,7 +8,7 @@ After=network.target network-online.target
 Type=simple
 #PIDFile=/var/run/WiRocPythonWS.pid
 WorkingDirectory=/home/chip/WiRoc-Python-2
-ExecStart=/usr/bin/python3 startWebServer.py
+ExecStart=/home/chip/WiRoc-Python-2/env/bin/python startWebServer.py
 Restart=always
 RestartSec=10
 
