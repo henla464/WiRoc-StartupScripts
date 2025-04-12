@@ -7,9 +7,10 @@ After=network.target network-online.target WiRocPythonWS.service
 [Service]
 Type=simple
 WorkingDirectory=/home/chip/WiRoc-BLE-API
-ExecStart=/usr/bin/python3 gatt-server.py
+ExecStart=/home/chip/WiRoc-BLE-API/env/bin/python gatt-server.py
 Restart=always
 RestartSec=10
 
 [Install]
 WantedBy=default.target
+
