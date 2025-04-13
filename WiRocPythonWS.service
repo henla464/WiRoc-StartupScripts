@@ -13,4 +13,4 @@ Restart=always
 RestartSec=10
 
 [Install]
-WantedBy=WiRocBLE.service
+WantedBy=WiRocBLEAPI.service
