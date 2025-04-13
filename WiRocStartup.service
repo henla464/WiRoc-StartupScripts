@@ -9,5 +9,5 @@ WorkingDirectory=/home/chip/WiRoc-StartupScripts
 ExecStart=/home/chip/WiRoc-StartupScripts/env/bin/python Startup.py
 
 [Install]
-WantedBy=WiRocBLE.service
+WantedBy=WiRocBLEAPI.service
 WantedBy=WiRocPython.service
