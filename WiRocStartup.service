@@ -1,7 +1,7 @@
 # WiRocStartup service, fix bluetooth
 [Unit]
 Description=WiRocStartup: Startup service
-After=default.target
+After=network.target network-online.target
 
 [Service]
 Type=oneshot

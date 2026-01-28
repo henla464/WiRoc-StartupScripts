@@ -5,6 +5,7 @@ import subprocess
 import os
 import yaml
 import logging, logging.handlers
+import time
 
 # Constants
 I2CAddressRTC: int = 0x51
@@ -117,10 +118,11 @@ def initRTCModuleAndSetSystemTime() -> None:
 
     if not os.path.exists("/dev/rtc1"):
         try:
-            status = subprocess.check_output("echo pcf8563 0x51 > /sys/class/i2c-adapter/i2c-0/new_device", shell=True)
-            Logger.info(f"echo pcf8563 0x51 > /sys/class/i2c-adapter/i2c-0/new_device | returned status {status}")
+            # worked on older builds status = subprocess.check_output("echo pcf8563 0x51 > /sys/class/i2c-adapter/i2c-0/new_device", shell=True)
+            status = subprocess.check_output("echo pcf8563 0x51 | sudo tee /sys/bus/i2c/devices/i2c-0/new_device", shell=True)
+            Logger.info(f"echo pcf8563 0x51 | sudo tee /sys/bus/i2c/devices/i2c-0/new_device | returned status {status}")
         except Exception as ex:
-            Logger.error(f"echo pcf8563 0x51 > /sys/class/i2c-adapter/i2c-0/new_device | throw exception {ex}")
+            Logger.error(f"echo pcf8563 0x51 | sudo tee /sys/bus/i2c/devices/i2c-0/new_device | throw exception {ex}")
     # Seems hwclock uses /dev/rtc0 directly and ignoring /dev/rtc
     #status = subprocess.check_output("ln -f -s /dev/rtc1 /dev/rtc", shell=True)
     #Logger.info(f"ln -f -s /dev/rtc1 /dev/rtc | returned status {status}")
@@ -208,7 +210,7 @@ def getBluetoothAddressFromDevice() -> str | None:
     hcitoolRespWords = hcitoolResp.split()
     if len(hcitoolRespWords) > 1 and len(hcitoolRespWords[1]) == 17:
         btAddress = hcitoolRespWords[1]
-        Logger.info("getBluetoothAddressFromDevice() End: {btAddress}")
+        Logger.info(f"getBluetoothAddressFromDevice() End: {btAddress}")
         return btAddress
     Logger.info("getBluetoothAddressFromDevice() End: None")
     return None
@@ -260,11 +262,23 @@ def getBluetoothAddressToUseAndSyncronizeSettingAndAXP209():
     Logger.info("getBluetoothAddressToUseAndSyncronizeSettingAndAXP209() End: None")
     return None
 
+def reinitializeBluetoothChip() -> None:
+    # reload
+    status = subprocess.run("modprobe -r hci_uart", capture_output=True, text=True, shell=True)
+    time.sleep(0.5)
+    status = subprocess.run("modprobe hci_uart", capture_output=True, text=True, shell=True)
+    time.sleep(0.5)
 
 def configureBluetoothAddress() -> None:
     Logger.info("configureBluetoothAddress() Start")
     btAddressToUse = getBluetoothAddressToUseAndSyncronizeSettingAndAXP209()
     btAddressDevice = getBluetoothAddressFromDevice()
+    if btAddressDevice is None:
+        reinitializeBluetoothChip()
+        btAddressDevice = getBluetoothAddressFromDevice()
+        if btAddressDevice is None:
+            Logger.error(f"configureBluetoothAddress() btAddressDevice still empty, BT driver not working")
+            return None
     if btAddressToUse is None:
         # No bt address is configured, then we should try to use the default one and
         # hope it is not used by any other previous WiRoc device
@@ -275,11 +289,11 @@ def configureBluetoothAddress() -> None:
             setBluetoothAddressInSettings(btAddressDevice)
     elif btAddressToUse != btAddressDevice:
         # Change the bluetooth address of the WiRoc
-        status = subprocess.check_output("hciconfig hci0 down", shell=True)
+        status = subprocess.run("hciconfig hci0 down", capture_output=True, text=True, shell=True)
         Logger.info(f"configureBluetoothAddress() hciconfig hci0 down | response: {status}")
-        status = subprocess.check_output(f"btmgmt public-addr {btAddressToUse}", shell=True)
+        status = subprocess.run(f"btmgmt public-addr {btAddressToUse}", capture_output=True, text=True, shell=True)
         Logger.info(f"configureBluetoothAddress() btmgmt public-addr {btAddressToUse} | response: {status}")
-        status = subprocess.check_output("hciconfig hci0 up", shell=True)
+        status = subprocess.run("hciconfig hci0 up", capture_output=True, text=True, shell=True)
         Logger.info(f"configureBluetoothAddress() hciconfig hci0 up | response: {status}")
     Logger.info("configureBluetoothAddress() End")
 
