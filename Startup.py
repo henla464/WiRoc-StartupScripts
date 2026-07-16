@@ -110,6 +110,25 @@ def clearRTCAlarm() -> None:
     return None
 
 
+def getPcf8563RtcDevice() -> str:
+    # Find the battery-backed pcf8563 by driver name rather than assuming a fixed rtc
+    # number - which /dev/rtcN it gets is not guaranteed (see the "probably is the pcf8563"
+    # note in install). Returns "" if not found.
+    try:
+        for entry in sorted(os.listdir("/sys/class/rtc")):
+            if not entry.startswith("rtc"):
+                continue
+            try:
+                with open("/sys/class/rtc/" + entry + "/name") as nameFile:
+                    if nameFile.read().strip().startswith("rtc-pcf8563"):
+                        return "/dev/" + entry
+            except OSError:
+                continue
+    except OSError:
+        pass
+    return ""
+
+
 def initRTCModuleAndSetSystemTime() -> None:
     Logger.info("initRTCModuleAndSetSystemTime() Start")
     # Clear the VL flag
@@ -127,9 +146,26 @@ def initRTCModuleAndSetSystemTime() -> None:
     #status = subprocess.check_output("ln -f -s /dev/rtc1 /dev/rtc", shell=True)
     #Logger.info(f"ln -f -s /dev/rtc1 /dev/rtc | returned status {status}")
 
-    # restore system time from hardware clock
-    status = subprocess.check_output("hwclock -f /dev/rtc1 --hctosys", shell=True)
-    Logger.info(f"hwclock --hctosys | returned status {status}")
+    # Restore system time from the battery-backed pcf8563, but only from the device that
+    # really is the pcf8563 (resolved by name, not a fixed rtc number) and only if it reads
+    # a plausible year. A never-set pcf8563 reads e.g. 1984; loading that would clobber a
+    # good system clock (fake-hwclock / NTP) until chrony steps it back, which on a
+    # repeatedly-rebooting unit leaves long windows of wrong time (observed as 1984).
+    rtcDevice = getPcf8563RtcDevice()
+    if not rtcDevice:
+        Logger.warning("initRTCModuleAndSetSystemTime() pcf8563 rtc device not found; not setting system clock from RTC")
+    else:
+        try:
+            rtcStr = subprocess.check_output(f"hwclock -f {rtcDevice} -r", shell=True).decode().strip()
+            rtcYear = int(rtcStr[0:4])
+        except Exception as ex:
+            rtcYear = 0
+            Logger.error(f"initRTCModuleAndSetSystemTime() could not read {rtcDevice}: {ex}")
+        if rtcYear >= 2026:
+            status = subprocess.check_output(f"hwclock -f {rtcDevice} --hctosys", shell=True)
+            Logger.info(f"hwclock -f {rtcDevice} --hctosys | returned status {status}")
+        else:
+            Logger.warning(f"initRTCModuleAndSetSystemTime() {rtcDevice} reads implausible year {rtcYear}; not setting system clock from it (leaving it for NTP)")
     Logger.info("initRTCModuleAndSetSystemTime() End")
     return None
 
