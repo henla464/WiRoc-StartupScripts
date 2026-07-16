@@ -1,0 +1,12 @@
+# Runs wiroc-rtc-writeback.service so a good clock gets persisted into the pcf8563 soon
+# after NTP sync (e.g. while at a wifi control) and is refreshed periodically. No-op offline.
+[Unit]
+Description=WiRoc: persist system time to the pcf8563 RTC when available
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
